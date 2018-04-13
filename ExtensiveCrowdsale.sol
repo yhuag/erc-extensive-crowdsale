@@ -7,7 +7,9 @@ import "github.com/OpenZeppelin/zeppelin-solidity/contracts/ownership/Ownable.so
 import "github.com/OpenZeppelin/zeppelin-solidity/contracts/crowdsale/Crowdsale.sol";
 
 
-// Allow buying oldToken (tokens for sale) with newToken
+// @title Extensive Crowdsale allows ERC20 tokens as payment methods
+// @author Hu Yao-Chieh (Jeff)
+// @dev This contract is for demonstration purpose so far. Further efforts are needed to make it generic and secure
 contract ExtensiveCrowdsale is Crowdsale, Ownable {
     
     // The initial newToken address
