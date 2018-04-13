@@ -12,59 +12,58 @@ import "github.com/OpenZeppelin/zeppelin-solidity/contracts/crowdsale/Crowdsale.
 // @dev This contract is for demonstration purpose so far. Further efforts are needed to make it generic and secure
 contract ExtensiveCrowdsale is Crowdsale, Ownable {
     
-    // The initial newToken address
-    ERC20 public newToken = ERC20(0x0);
-    
-    // Hardcoded setup data
-    address wallet = 0x5ff2c17ada131e5D9fa0f927395Abe35657e4768;
-    address tokenAddress = 0x426d21246eF37ECdCb012E4B9427a78F9285dFEb;
-    uint256 rate = 100;
+    // The initial exToken address
+    ERC20 public exToken = ERC20(0x0);
     
     // !!! Please be reminded that the constructor has changed _token to _tokenAddress for testing purpose
-    function ExtensiveCrowdsale() public Crowdsale(rate, wallet, ERC20(tokenAddress)) {}
+    function ExtensiveCrowdsale(
+        uint256 _rate,
+        address _wallet,
+        ERC20 _token
+    ) public Crowdsale(_rate, _wallet, _token){}
     
     
-    // Add new ERC20 token as payment method
-    function setToken(address _tokenAddress) public onlyOwner {
-        newToken = ERC20(_tokenAddress);
-    }
+    // Set an ERC20 token as payment method
+    function setExToken(address _tokenAddress) public onlyOwner { exToken = ERC20(_tokenAddress); }
     
-    // Get balance of the caller in terms of the nweToken
-    function getNewBalance() public view returns (uint) {
-        return newToken.balanceOf(this);
-    }
+    // Get balance of exToken of this contract
+    function getExBalance() public view onlyOwner returns (uint) { return exToken.balanceOf(this); }
     
-    // Get balance of old tokens in contarct
-    function getOldBalance() public view returns (uint) {
-        return token.balanceOf(this);
-    }
-    
-    // Sell out old token
-    function _deliverOldTokensToBuyer(uint256 _tokenAmount) internal {
-        token.transfer(msg.sender, _tokenAmount);
-    }
-    
-    // Receive new token (need to Approve from the newToken by user first)
-    function _receiveNewTokensFromBuyer(uint256 _tokenAmount) internal {
-        newToken.transferFrom(msg.sender, this, _tokenAmount);
-    }
-    
-    // Buy token with newToken
-    function buyTokensWithNewToken(uint256 _amount) public {
+    // Get balance of tokens-for-sales of this contract
+    function getTokenBalance() public view onlyOwner returns (uint) { return token.balanceOf(this); }
 
-        // _preValidatePurchase(_beneficiary, _newTokenAmount);
+    function _processPurchase(address _beneficiary, uint256 _amount) internal {
+        _deliverTokensToBuyer(tokens);
+    }
+    
+    // Send out tokens-for-sales
+    function _deliverTokensToBuyer(uint256 _amount) internal { token.transfer(msg.sender, _amount); }
+    
+    // Receive new token (need to Approve from the exToken by user first)
+    function _receiveExTokensFromBuyer(uint256 _amount) internal { exToken.transferFrom(msg.sender, this, _amount); }
+    
+    // Buy token with exToken
+    function buyTokensWithExToken(address _beneficiary, uint256 _amount) public {
+
+        _preValidatePurchase(_beneficiary, _amount);
     
         // calculate token amount to be created
-        // uint256 oldTokenAmount = _getTokenAmount(_newTokenAmount);
+        uint256 tokens = _getTokenAmount(_amount);
     
         // update state
-        // weiRaised = weiRaised.add(_newTokenAmount);
+        weiRaised = weiRaised.add(_amount);
+
+
+        _processPurchase(_beneficiary, tokens);
+        // Give out tokens-for-sales
+        
+
+        emit TokenPurchase(msg.sender, _beneficiary, weiAmount, tokens);
     
-        // Give out old token
-        _deliverOldTokensToBuyer(_amount);
+        
     
-        // Receive new token 
-        _receiveNewTokensFromBuyer(_amount);
+        // Receive exToken 
+        _receiveExTokensFromBuyer(_amount);
     }
     
     
