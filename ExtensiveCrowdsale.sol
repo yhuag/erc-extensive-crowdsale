@@ -32,16 +32,12 @@ contract ExtensiveCrowdsale is Crowdsale, Ownable {
     // Get balance of tokens-for-sales of this contract
     function getTokenBalance() public view onlyOwner returns (uint) { return token.balanceOf(this); }
 
-    function _processPurchase(address _beneficiary, uint256 _amount) internal { _deliverTokensToBuyer(tokens); }
-    
     // Send out tokens-for-sales
+    function _processPurchase(address _beneficiary, uint256 _amount) internal { _deliverTokensToBuyer(tokens); }
     function _deliverTokensToBuyer(uint256 _amount) internal { token.transfer(msg.sender, _amount); }
 
-    function _forwardFunds() internal {
-        _receiveExTokensFromBuyer(_amount);
-    }
-    
     // Receive new token (need to Approve from the exToken by user first)
+    function _forwardFunds() internal { _receiveExTokensFromBuyer(_amount); }
     function _receiveExTokensFromBuyer(uint256 _amount) internal { exToken.transferFrom(msg.sender, this, _amount); }
     
     // Buy token with exToken
