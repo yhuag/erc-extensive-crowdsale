@@ -55,7 +55,7 @@ contract ExtensiveCrowdsale is Crowdsale, Ownable {
         // update state
         weiRaised = weiRaised.add(_amount);
 
-        // Give out tokens-for-sales
+        // Give out tokens-for-sales to buyers
         _processPurchase(_beneficiary, tokens);
         
         emit TokenPurchase(msg.sender, _beneficiary, weiAmount, tokens);
